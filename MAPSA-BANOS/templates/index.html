@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MAPSA Baños</title>
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='logo-banos.jpg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo-banos.jpg') }}">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+
+            background-image: url('https://cdn.phototourl.com/free/2026-09-21-b8f2e755-03a7-4381-ba89-575753d5d280.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+
+            color: #1f2937;
+        }
+
+        .encabezado {
+            background: #111827;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .encabezado h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .encabezado p {
+            margin: 8px 0 0;
+            color: #cbd5e1;
+        }
+
+        .contenedor {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .tarjeta {
+            background: white;
+            border-radius: 18px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        .bano {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .estado {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .libre {
+            color: #16a34a;
+        }
+
+        .ocupado {
+            color: #dc2626;
+        }
+
+        .sinconexion {
+            color: #f59e0b;
+        }
+
+        .pie {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="encabezado">
+        <h1>MAPSA BAÑOS</h1>
+        <p>Sistema de monitoreo</p>
+    </div>
+
+    <div class="contenedor">
+
+        <div class="tarjeta">
+
+            <div class="bano">
+                🚻 BAÑO PLANTA BAJA
+            </div>
+
+            <div id="estado1" class="estado sinconexion">
+                ⚠️ SIN CONEXIÓN
+            </div>
+
+            <div class="pie">
+                Estado actualizado automáticamente
+            </div>
+
+        </div>
+
+        <br>
+
+        <div class="tarjeta">
+
+            <div class="bano">
+                🚹 BAÑO HOMBRES
+            </div>
+
+            <div id="estado2" class="estado sinconexion">
+                ⚠️ SIN CONEXIÓN
+            </div>
+
+            <div class="pie">
+                Estado actualizado automáticamente
+            </div>
+
+        </div>
+
+        <br>
+
+        <div class="tarjeta">
+
+            <div class="bano">
+                🚺 BAÑO MUJERES
+            </div>
+
+            <div id="estado3" class="estado sinconexion">
+                ⚠️ SIN CONEXIÓN
+            </div>
+
+            <div class="pie">
+                Estado actualizado automáticamente
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function actualizarEstados() {
+
+            fetch('/api/banos')
+
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error("Error del servidor");
+                    }
+
+                    return response.json();
+
+                })
+
+                .then(datos => {
+
+                    actualizarEstado('estado1', datos.bano1);
+                    actualizarEstado('estado2', datos.bano2);
+                    actualizarEstado('estado3', datos.bano3);
+
+                })
+
+                .catch(error => {
+
+                    mostrarSinConexion('estado1');
+                    mostrarSinConexion('estado2');
+                    mostrarSinConexion('estado3');
+
+                });
+        }
+
+
+        function actualizarEstado(id, estado) {
+
+            let elemento = document.getElementById(id);
+
+            if (estado === 'OCUPADO') {
+
+                elemento.innerHTML = '🔴 OCUPADO';
+                elemento.className = 'estado ocupado';
+
+            }
+
+            else if (estado === 'LIBRE') {
+
+                elemento.innerHTML = '🟢 LIBRE';
+                elemento.className = 'estado libre';
+
+            }
+
+            else {
+
+                mostrarSinConexion(id);
+
+            }
+        }
+
+
+        function mostrarSinConexion(id) {
+
+            let elemento = document.getElementById(id);
+
+            elemento.innerHTML = '⚠️ SIN CONEXIÓN';
+            elemento.className = 'estado sinconexion';
+
+        }
+
+
+        // Actualizar cada 1 segundo
+        setInterval(actualizarEstados, 1000);
+
+
+        // Primera actualización al abrir la página
+        window.onload = function () {
+
+            actualizarEstados();
+
+        };
+
+    </script>
+
+</body>
+
+</html>
+
+
